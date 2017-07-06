@@ -48,7 +48,7 @@ def read_config(path="./gui-config.json"):
         j = json.load(f)
         return handle_json(j)
 
-if __name__=="__main__":
+def start():
     ps = read_config()
     try:
         [i.wait() for i in ps]

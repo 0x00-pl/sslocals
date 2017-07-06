@@ -26,6 +26,7 @@ def ping_test(addr):
 def handle_json(j):
     base_port = 1081
     ret = []
+    export_configs = []
     for conf in j["configs"]:
         if not ping_test(conf["server"]):
             continue
@@ -33,8 +34,13 @@ def handle_json(j):
                       conf["server_port"],
                       conf["password"],
                       str(base_port))
+        export_configs.append(' '.join(['socks5', '127.0.0.1', str(base_port)]))
         base_port += 1
         ret.append(p)
+
+    exp_beg = ['############proxychain.conf############']
+    exp_end = ['##################end##################']
+    print('\n'.join(exp_beg+export_configs+exp_end))
     return ret
 
 def read_config(path="./gui-config.json"):

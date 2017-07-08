@@ -23,35 +23,43 @@ def ping_test(addr):
     except:
         return False
 
+def for_conf(j):
+    for conf in j["configs"]:
+        yield conf
+
 def handle_json(j):
     base_port = 1081
     ret = []
     export_configs = []
-    for conf in j["configs"]:
+    for conf in for_conf(j):
         if not ping_test(conf["server"]):
             continue
+
         p = start_sslocal(conf["server"],
-                      conf["server_port"],
-                      conf["password"],
-                      str(base_port))
+                          conf["server_port"],
+                          conf["password"],
+                          str(base_port))
+        ret.append(p)
         export_configs.append(' '.join(['socks5', '127.0.0.1', str(base_port)]))
         base_port += 1
-        ret.append(p)
 
     exp_beg = ['############proxychain.conf############']
     exp_end = ['##################end##################']
     print('\n'.join(exp_beg+export_configs+exp_end))
     return ret
 
-def read_config(path="./gui-config.json"):
+def start_config(path="./gui-config.json"):
+    j = None
     with open(path) as f:
         j = json.load(f)
-        return handle_json(j)
 
-def start():
-    ps = read_config()
+    ps = []
     try:
+        ps = handle_json(j)
         [i.wait() for i in ps]
     except:
         [i.kill() for i in ps]
+
+def start():
+    start_config()
 
